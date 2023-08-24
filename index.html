@@ -73,7 +73,7 @@ function addinputtomatrix () {
 
 setInterval(addinputtomatrix, 200);
 
-let socket = new WebSocket("ws://bsoric.com:8765");
+let socket = new WebSocket("ws://localhost:8765");
 socket.onmessage =  async function(event) {
   input+= await event.data.text();
   snippets+= await event.data.text(); //
