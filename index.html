@@ -1,0 +1,84 @@
+<html>
+<head>
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+}
+
+@font-face {
+        font-family: matrix;
+        src: url(./matrixcodenfi.ttf);
+}
+</style>
+<body>
+<canvas width="500" height="200" id="canv" />
+
+
+<script>
+
+const canvas = document.getElementById('canv');
+const ctx = canvas.getContext('2d');
+
+const w = canvas.width = document.body.offsetWidth;
+const h = canvas.height = document.body.offsetHeight;
+const cols = Math.floor(w / 20) + 1;
+const ypos = Array(cols).fill(-1);
+
+var goodCharacters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+var input = "";
+var snippets = "";
+
+ctx.fillStyle = '#000';
+ctx.fillRect(0, 0, w, h);
+
+function matrix () {
+  ctx.fillStyle = '#0001';
+  ctx.fillRect(0, 0, w, h);
+  
+  ctx.fillStyle = '#0f0';
+  ctx.font = '15pt matrix';
+  
+  ypos.forEach((y, ind) => {
+    if (y > -1) {
+    	var text;
+    	if (snippets.length > 10 && Math.random() < 0.3) {
+	    	text = snippets.charAt((y/20+ind*231)%snippets.length).toUpperCase();
+    	} else {
+	    	text = goodCharacters[Math.floor(Math.random() * goodCharacters.length)];
+	    }
+	    const x = ind * 20;
+	    ctx.fillText(text, x, y);
+	    if (y > 100 + Math.random() * 10000) ypos[ind] = -1;
+	    else ypos[ind] = y + 20;
+    }
+  });
+}
+
+setInterval(matrix, 50);
+
+function addinputtomatrix () {
+	snippets = snippets.replace( /[^a-zA-Z0-9 ]/, "");
+	if (snippets.length > 500) snippets=snippets.substr(snippets.length - 500);
+		
+	for (var loop = 0; loop < input.length; loop += 10){
+		for (var i = 0; i < cols; i++) {
+			if (ypos[(input.charCodeAt(0)+i)%cols] == -1) break;
+		} 
+		ypos[(input.charCodeAt(0)+i)%cols] = 0;
+		input = input.substr(1);
+	}
+}
+
+setInterval(addinputtomatrix, 200);
+
+let socket = new WebSocket("ws://bsoric.com:8765");
+socket.onmessage =  async function(event) {
+  input+= await event.data.text();
+  snippets+= await event.data.text(); //
+};
+
+</script>
+</body>
+</html>
